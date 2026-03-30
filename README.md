@@ -84,5 +84,5 @@ Config is stored at `~/Library/Application Support/SpeechToText/config.json`.
 
 ## Other Platforms
 
-- [Linux version](https://github.com/bouddahami/SpeechToText)
+- [Linux version](https://github.com/bouddahami/SpeechToText-Linux)
 - [Windows version](https://github.com/bouddahami/SpeechToText-Windows)
