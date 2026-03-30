@@ -4,6 +4,25 @@ Voxtral-powered speech-to-text that lives in your macOS menu bar.
 
 Record speech, get instant transcription via Mistral's Voxtral API, and have it automatically typed at your cursor or copied to clipboard.
 
+## Download & Install (No Python Required)
+
+> **Go to the [Releases page](https://github.com/bouddahami/SpeechToText-macOS/releases/latest) and download `SpeechToText.dmg`**
+
+### Quick start
+
+1. Download **`SpeechToText.dmg`** and open it
+2. Drag **SpeechToText** into **Applications**
+3. Open **SpeechToText** from Applications
+4. **First launch:** macOS will say *"can't be opened because it is from an unidentified developer"* — this is normal (no code signing certificate). Fix:
+   - Right-click the app → **Open** → click **Open** again
+   - Or: **System Settings → Privacy & Security → Open Anyway**
+5. The app appears in the **menu bar** (top of screen, near the clock)
+6. Click the 🎙 icon → **Add API Key**
+7. Get a free API key from [console.mistral.ai](https://console.mistral.ai/) (create an account, go to API Keys)
+8. Paste your key, click **Test Key**, then **Save**
+9. Click 🎙 → **Start Recording** → speak → **Stop Recording**
+10. Your transcription is automatically typed where your cursor is!
+
 ## Features
 
 - **Menu bar app** — lives in the macOS menu bar, no Dock icon
@@ -14,69 +33,54 @@ Record speech, get instant transcription via Mistral's Voxtral API, and have it 
 - **API key management** — add/test/manage your Mistral API key from Settings
 - **2-minute recording limit** — optimized for Mistral's free tier
 
-## Requirements
+## Permissions
+
+macOS will ask for **Microphone** and **Accessibility** (for type-at-cursor) permissions. Grant both for full functionality.
+
+## Install from Source (for developers)
+
+<details>
+<summary>Click to expand developer instructions</summary>
+
+### Requirements
 
 - macOS 10.15+
 - Python 3.9+
 - A [Mistral API key](https://console.mistral.ai/)
 
-## Installation
+### Installation
 
 ```bash
-# Clone the repo
 git clone https://github.com/bouddahami/SpeechToText-macOS.git
 cd SpeechToText-macOS
-
-# Install dependencies
 pip3 install -r requirements.txt
-
-# Install the app
 pip3 install .
 ```
 
-## Usage
+### Usage
 
 ```bash
 speechtotext
 ```
 
-On first launch, you'll see only "🔑 Add API Key" in the menu bar dropdown. Click it to enter and test your Mistral API key.
+### Build the .app yourself
+
+```bash
+pip3 install py2app
+python setup_app.py py2app
+# Output: dist/SpeechToText.app
+```
+
+</details>
 
 ## Auto-start on Login
 
-1. Open **System Preferences → Users & Groups → Login Items**
-2. Click **+** and add the `speechtotext` script (usually `~/.local/bin/speechtotext` or find it with `which speechtotext`)
-
-Or create a Launch Agent:
-
-```bash
-cat > ~/Library/LaunchAgents/com.speechtotext.app.plist << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.speechtotext.app</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/local/bin/speechtotext</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-</dict>
-</plist>
-EOF
-
-launchctl load ~/Library/LaunchAgents/com.speechtotext.app.plist
-```
+1. Open **System Settings → General → Login Items**
+2. Click **+** and select **SpeechToText** from Applications
 
 ## Configuration
 
 Config is stored at `~/Library/Application Support/SpeechToText/config.json`.
-
-## Permissions
-
-macOS will ask for **Microphone** and **Accessibility** (for type-at-cursor) permissions. Grant both for full functionality.
 
 ## Other Platforms
 

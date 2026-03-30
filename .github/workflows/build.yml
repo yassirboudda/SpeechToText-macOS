@@ -1,0 +1,134 @@
+name: Build macOS App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install py2app pyinstaller
+
+      - name: Create .icns icon from PNG
+        run: |
+          mkdir -p icon.iconset
+          sips -z 16 16     assets/icon.png --out icon.iconset/icon_16x16.png
+          sips -z 32 32     assets/icon.png --out icon.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/icon.png --out icon.iconset/icon_32x32.png
+          sips -z 64 64     assets/icon.png --out icon.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/icon.png --out icon.iconset/icon_128x128.png
+          sips -z 256 256   assets/icon.png --out icon.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/icon.png --out icon.iconset/icon_256x256.png
+          sips -z 512 512   assets/icon.png --out icon.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/icon.png --out icon.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/icon.png --out icon.iconset/icon_512x512@2x.png
+          iconutil -c icns icon.iconset -o assets/icon.icns
+          echo "Created icon.icns"
+
+      - name: Build .app with py2app
+        run: python setup_app.py py2app
+
+      - name: Verify .app bundle
+        run: |
+          if [ -d "dist/SpeechToText.app" ]; then
+            SIZE=$(du -sh "dist/SpeechToText.app" | cut -f1)
+            echo "Build OK: SpeechToText.app ($SIZE)"
+          else
+            echo "Build failed: SpeechToText.app not found"
+            exit 1
+          fi
+
+      - name: Create DMG
+        run: |
+          # Create a temporary DMG directory
+          mkdir -p dmg_contents
+          cp -R dist/SpeechToText.app dmg_contents/
+          ln -s /Applications dmg_contents/Applications
+
+          # Create DMG
+          hdiutil create -volname "SpeechToText" \
+            -srcfolder dmg_contents \
+            -ov -format UDZO \
+            dist/SpeechToText.dmg
+
+          echo "Created SpeechToText.dmg"
+          ls -lh dist/SpeechToText.dmg
+
+      - name: Also build standalone with PyInstaller
+        run: |
+          pyinstaller \
+            --name SpeechToText \
+            --onefile \
+            --windowed \
+            --icon assets/icon.icns \
+            --hidden-import rumps \
+            --hidden-import pystray \
+            --hidden-import sounddevice \
+            --hidden-import _sounddevice_data \
+            --hidden-import numpy \
+            --hidden-import tkinter \
+            --hidden-import tkinter.ttk \
+            --noconfirm \
+            speechtotext/__main__.py
+          
+          # Rename to avoid confusion with the .app
+          mv dist/SpeechToText dist/SpeechToText-portable
+          echo "Created SpeechToText-portable"
+
+      - name: Upload .app DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeechToText-macOS-DMG
+          path: dist/SpeechToText.dmg
+
+      - name: Upload portable binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeechToText-macOS-Portable
+          path: dist/SpeechToText-portable
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/SpeechToText.dmg
+          body: |
+            ## SpeechToText for macOS
+
+            ### Download:
+            - **`SpeechToText.dmg`** — Drag-and-drop installer. Open the DMG, drag SpeechToText to Applications.
+
+            ### First launch:
+            > **Note:** You'll see "SpeechToText can't be opened because it is from an unidentified developer." This is normal (no code signing certificate). To open it:
+            > 1. Right-click the app → **Open** → click **Open** again
+            > 2. Or go to **System Settings → Privacy & Security** → click **Open Anyway**
+
+            ### Setup:
+            1. The app appears in the **menu bar** (top of screen, near the clock)
+            2. Click the 🎙 icon → **Add API Key**
+            3. Get a free API key from [console.mistral.ai](https://console.mistral.ai/)
+            4. Paste it, click **Test Key**, then **Save**
+            5. Click 🎙 → **Start Recording** → speak → **Stop Recording**
+            6. Your transcription is automatically typed where your cursor is!
+
+            ### Permissions:
+            macOS will ask for **Microphone** and **Accessibility** permissions — grant both.
+          generate_release_notes: true
