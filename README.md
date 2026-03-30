@@ -6,7 +6,7 @@ Record speech, get instant transcription via Mistral's Voxtral API, and have it 
 
 ## Download & Install (No Python Required)
 
-> **Go to the [Releases page](https://github.com/bouddahami/SpeechToText-macOS/releases/latest) and download `SpeechToText.dmg`**
+> **Go to the [Releases page](https://github.com/yassirboudda/SpeechToText-macOS/releases/latest) and download `SpeechToText.dmg`**
 
 ### Quick start
 
@@ -51,7 +51,7 @@ macOS will ask for **Microphone** and **Accessibility** (for type-at-cursor) per
 ### Installation
 
 ```bash
-git clone https://github.com/bouddahami/SpeechToText-macOS.git
+git clone https://github.com/yassirboudda/SpeechToText-macOS.git
 cd SpeechToText-macOS
 pip3 install -r requirements.txt
 pip3 install .
@@ -84,5 +84,5 @@ Config is stored at `~/Library/Application Support/SpeechToText/config.json`.
 
 ## Other Platforms
 
-- [Linux version](https://github.com/bouddahami/SpeechToText-Linux)
-- [Windows version](https://github.com/bouddahami/SpeechToText-Windows)
+- [Linux version](https://github.com/yassirboudda/SpeechToText-Linux)
+- [Windows version](https://github.com/yassirboudda/SpeechToText-Windows)

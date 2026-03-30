@@ -10,7 +10,7 @@ OPTIONS = {
     'plist': {
         'CFBundleName': 'SpeechToText',
         'CFBundleDisplayName': 'SpeechToText',
-        'CFBundleIdentifier': 'com.bouddahami.speechtotext',
+        'CFBundleIdentifier': 'com.yassirboudda.speechtotext',
         'CFBundleVersion': '1.0.0',
         'CFBundleShortVersionString': '1.0.0',
         'LSMinimumSystemVersion': '10.15',
